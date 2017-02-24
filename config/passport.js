@@ -2,14 +2,12 @@ var LocalStrategy = require('passport-local').Strategy;
 var bcrypt = require('bcrypt-nodejs');
 module.exports = function(passport, db, fs) {
 	// used to serialize the user for the session
-	passport.serializeUser(function(user, done) {
-		console.log("serialize: " + user);
+	passport.serializeUser(function(user, done) {		
 		done(null, user.Email);
 	});
 	// used to deserialize a user
 	passport.deserializeUser(function(email, done) {
-		var sql = fs.readFileSync('./queries/user_select.sql').toString().replace('{0}', email);
-		console.log("deserialize query: " + sql);
+		var sql = fs.readFileSync('./queries/user_select.sql').toString().replace('{0}', email);		
 		db.all(sql, function(err, records) {
 			done(err, records);
 		});		
@@ -23,10 +21,8 @@ module.exports = function(passport, db, fs) {
 		passReqToCallback : true
 	},
 	function(req, email, password, done) {
-		var sql = fs.readFileSync('./queries/user_select.sql').toString().replace('{0}', email);
-		console.log(sql);
-		db.all(sql, function(err, records) {
-			console.log(records);
+		var sql = fs.readFileSync('./queries/user_select.sql').toString().replace('{0}', email);		
+		db.all(sql, function(err, records) {			
 			if (err)
 				return done(err);
 			if (records.length) {
@@ -43,8 +39,7 @@ module.exports = function(passport, db, fs) {
 					.replace('{0}', newUser.email)
 					.replace('{1}', newUser.password)
 					.replace('{2}', newUser.firstName)
-					.replace('{3}', newUser.lastName);
-				console.log(sql_insert);
+					.replace('{3}', newUser.lastName);				
 				db.run(sql_insert, function(err, records) {
 					db.all(sql, function(err, users) {
 						var user = users[0];
@@ -63,8 +58,7 @@ module.exports = function(passport, db, fs) {
 		passReqToCallback: true
 	}, 
 	function(req, email, password, done) {
-		var sql = fs.readFileSync('./queries/user_select.sql').toString().replace('{0}', email);
-		console.log(sql);
+		var sql = fs.readFileSync('./queries/user_select.sql').toString().replace('{0}', email);		
 		db.all(sql, function(err, records) {
 			var user = records[0];
 			

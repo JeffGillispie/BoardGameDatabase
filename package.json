@@ -1,18 +1,32 @@
 {
-  "name": "Board Game Database",
+  "name":"board-game-database",
   "main": "app.js",
   "version": "0.0.1",
+  "author": [
+  	"Jeff Gillispie",
+  	"Eli Hanna",
+  	"Josh Johnson",
+  	"Eric Kaufman",
+  	"Ty Lorton"
+  ],
+  "private": true,
+  "description": "Database technology project for SER322.",
+  "repository": {
+  	"type": "git",
+  	"url": "https://github.com/JeffGillispie/BoardGameDatabase.git"
+  },
   "dependencies": {
     "ejs": "^1.0.0",
     "express": "^4.6.1",
-    "sqlite3":"~3.1.8",
+    "sqlite3": "~3.1.8",
     "passport": "~0.1.17",
-    "passport-local" : "~0.1.6",
+    "passport-local": "~0.1.6",
     "connect-flash": "~0.1.1",
     "bcrypt-nodejs": "latest",
     "morgan": "~1.0.0",
     "body-parser": "~1.0.0",
     "cookie-parser": "~1.0.0",
     "express-session": "~1.0.0" 
-  }
+  },
+  "license": "MIT"
 }

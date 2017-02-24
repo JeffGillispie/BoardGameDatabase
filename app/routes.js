@@ -21,7 +21,7 @@ module.exports = function(app, passport, fs, db) {
 	    }
 	    // get top 10 rated games
 	    var sql_topGames = fs.readFileSync('./queries/game_ratings_top10.sql').toString();	    	    
-	    console.log('logged in user: ' + email);
+	    console.log('current user = ' + email);
 	    db.all(sql_topGames, function(err, topGames) {
 		    res.render('pages/index', {	        
 		    	hasUser: hasUser,

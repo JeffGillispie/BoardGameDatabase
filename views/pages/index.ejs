@@ -1,0 +1,48 @@
+<!-- views/pages/index.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ../partials/header %>
+    </header>
+
+    <main>
+    	<div class="row">
+            <div class="col-sm-8">            
+                <div class="jumbotron">
+        
+		            <h1>Board Game Database</h1>
+		            <p>Welcome to the Board Game Database. We are all games, all the time.</p>		            			        
+        		</div>                
+            </div>
+            <div class="col-sm-4">                
+                <div class="well">
+                    <% if (hasUser) { %>
+                    	<b>Welcome back <%= firstName %></b>
+                    	<ul>
+                    		<li><a href="/profile">User Profile</a></li>
+                    		
+                    	</ul>
+                    	<a href="/logout" class="btn btn-default btn-sm">Logout</a>
+                    <% } else { %>
+                    	<p>You're currently not logged in. Login or Register to experience all of the fun!</p>
+                    	<a href="/login" class="btn btn-default"><span class="fa fa-user"></span>Login</a>
+			        	<a href="/signup" class="btn btn-default"><span class="fa fa-user"></span>Register</a>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+        
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>

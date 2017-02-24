@@ -3,17 +3,38 @@ module.exports = function(app, passport, fs, db) {
 	// HOME PAGE
 	// ====================================================
 	app.get('/', function(req, res) {	
-	    var tagline = "Join a group and start playing games.";	
-	    res.render('index', {
-	        tagline: tagline
-	    });
-	
+	    
+	    var hasUser, email, userid, firstName, lastName;
+	    
+	    if (typeof req.user !== 'undefined' && req.user && typeof req.user[0] !== 'undefined' && req.user[0]) {
+	    	hasUser = true;
+	    	email = req.user[0].Email;
+	    	userid = req.user[0].UserID;
+	    	firstName = req.user[0].FirstName;
+	    	lastName = req.user[0].LastName;
+	    } else {
+	    	hasUser = false;
+	    	email = '';
+	    	userid = '';
+	    	firstName = '';
+	    	lastName = '';
+	    }
+	    
+	    console.log('logged in user: ' + email);
+	    
+	    res.render('pages/index', {	        
+	    	hasUser: hasUser,
+	    	email: email,
+	    	userid: userid,
+	    	firstName: firstName,
+	    	lastName: lastName
+	    });	
 	});
 	// ====================================================
 	// ABOUT PAGE
 	// ====================================================
 	app.get('/about', function(req, res) {
-		res.render('about');
+		res.render('pages/about');
 	});
 	// ====================================================
 	// GAMES "LIST" PAGE
@@ -21,7 +42,7 @@ module.exports = function(app, passport, fs, db) {
 	app.get('/games', function(req, res) {
 		var sql = fs.readFileSync('./queries/game_list.sql').toString();
 		db.all(sql, function(err, games) {
-			res.render('games', {
+			res.render('pages/games', {
 				games: games
 			});
 		});
@@ -33,7 +54,7 @@ module.exports = function(app, passport, fs, db) {
 		var id = req.query.GameID;
 		var sql = fs.readFileSync('./queries/game_details.sql').toString().replace('{0}', id);
 		db.all(sql, function(err, game) {
-			res.render('game', {
+			res.render('pages/game', {
 				game: game[0]			
 			});		
 		});
@@ -44,7 +65,7 @@ module.exports = function(app, passport, fs, db) {
 	app.get('/groups', function(req, res) {
 		var sql = fs.readFileSync('./queries/group_list.sql').toString();
 		db.all(sql, function(err, groups) {
-			res.render('groups', {
+			res.render('pages/groups', {
 				groups: groups
 			});
 		});	
@@ -58,7 +79,7 @@ module.exports = function(app, passport, fs, db) {
 		var sql_events = fs.readFileSync('./queries/group_events.sql').toString().replace('{0}', id);	
 		db.all(sql_group, function(err, group) {
 			db.all(sql_events, function(er, events) {		
-				res.render('group', {
+				res.render('pages/group', {
 					group: group[0],
 					events: events
 				});
@@ -71,7 +92,7 @@ module.exports = function(app, passport, fs, db) {
 	app.get('/events', function(req, res) {
 		var sql = fs.readFileSync('./queries/event_list.sql').toString();
 		db.all(sql, function(err, events) {
-			res.render('events', {
+			res.render('pages/events', {
 				events: events
 			});
 		});	
@@ -83,7 +104,7 @@ module.exports = function(app, passport, fs, db) {
 		var id = req.query.EventID;
 		var sql = fs.readFileSync('./queries/event_details.sql').toString().replace('{0}', id);
 		db.all(sql, function(err, event) {
-			res.render('event', {
+			res.render('pages/event', {
 				event: event[0]
 			});
 		});
@@ -92,15 +113,21 @@ module.exports = function(app, passport, fs, db) {
 	// LOGIN PAGE
 	// ====================================================
 	app.get('/login', function(req, res){
-		res.render('login', { 
+		res.render('pages/login', { 
 			message: req.flash('loginMessage')
 		});
 	});
+	// process the login form
+	app.post('/login', passport.authenticate('local-login', {
+		successRedirect: '/',
+		failureRedirect: '/login',
+		failureFlash: true
+	}));
 	// ====================================================
 	// SIGN-UP PAGE
 	// ====================================================
 	app.get('/signup', function(req, res){
-		res.render('signup', { 
+		res.render('pages/signup', { 
 			message: req.flash('signupMessage')
 		});
 	});
@@ -109,17 +136,14 @@ module.exports = function(app, passport, fs, db) {
 		successRedirect: '/profile',
 		failureRedirect: '/signup',
 		failureFlash: true
-	}));/*
-	app.post('/signup', function(req, res) {
-		console.log("hello world" + req.body.email + '|' + req.body.password);
-	});*/
+	}));
 	// ====================================================
 	// PROFILE PAGE
 	// ====================================================
-	app.get('/progile', isLoggedIn, function(req, res){
-		res.render('profile', { 
-			user: req.user 
-		});
+	app.get('/profile', isLoggedIn, function(req, res){		
+		res.render('pages/profile', { 
+			user: req.user[0] 
+		});		
 	});
 	// ====================================================
 	// LOGOUT PAGE
@@ -127,7 +151,7 @@ module.exports = function(app, passport, fs, db) {
 	app.get('/logout', function(req, res){
 		req.logout();
 		res.redirect('/');
-	});
+	});	
 };
 
 // route middle-ware to make sure user is logged in
@@ -136,5 +160,5 @@ function isLoggedIn(req, res, next) {
 	if (req.isAuthenticated())
 		return next();
 	// if they aren't redirect them to the home page
-	res.redirect('/');
+	res.redirect('/login');
 }

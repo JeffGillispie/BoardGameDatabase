@@ -1,0 +1,44 @@
+<!-- views/pages/games.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ../partials/header %>
+    </header>
+
+    <main>        
+        
+        <div class="row">
+            <div class="col-sm-8">            
+                <div class="jumbotron">
+                	<table class="table">
+                		<tr><th><%= game.Name %></th><th>Game Details</th></tr>
+                		<tr><td>Category</td><td><%= game.Category %></td></tr>
+                		<tr><td>Description</td><td><%= game.Description %></td></tr>
+                		<tr><td>MSRP</td><td><%= game.MSRP %></td></tr>
+                		<tr><td>Minimum Players</td><td><%= game.MinimumPlayers %></td></tr>
+                		<tr><td>Maximum Players</td><td><%= game.MaximumPlayers %></td></tr>
+                		<tr><td>Recommended Age</td><td><%= game.RecommendedAge %></td></tr>
+                		<tr><td>Average Game Length</td><td><%= game.AvgGameLengthMin %></td></tr>
+                	</table>                                    
+                </div>                
+            </div>
+            <div class="col-sm-4">                
+                <div class="well">
+                    <h3>Look I'm A Sidebar!</h3>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>    	
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>

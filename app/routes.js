@@ -5,7 +5,7 @@ module.exports = function(app, passport, fs, db) {
 	app.get('/', function(req, res) {	
 	    
 	    var hasUser, email, userid, firstName, lastName;
-	    
+	    // set variables depending on if there is a logged in user
 	    if (typeof req.user !== 'undefined' && req.user && typeof req.user[0] !== 'undefined' && req.user[0]) {
 	    	hasUser = true;
 	    	email = req.user[0].Email;
@@ -19,16 +19,19 @@ module.exports = function(app, passport, fs, db) {
 	    	firstName = '';
 	    	lastName = '';
 	    }
-	    
+	    // get top 10 rated games
+	    var sql_topGames = fs.readFileSync('./queries/game_ratings_top10.sql').toString();	    	    
 	    console.log('logged in user: ' + email);
-	    
-	    res.render('pages/index', {	        
-	    	hasUser: hasUser,
-	    	email: email,
-	    	userid: userid,
-	    	firstName: firstName,
-	    	lastName: lastName
-	    });	
+	    db.all(sql_topGames, function(err, topGames) {
+		    res.render('pages/index', {	        
+		    	hasUser: hasUser,
+		    	email: email,
+		    	userid: userid,
+		    	firstName: firstName,
+		    	lastName: lastName,
+		    	topGames: topGames
+		    });	
+	    });
 	});
 	// ====================================================
 	// ABOUT PAGE

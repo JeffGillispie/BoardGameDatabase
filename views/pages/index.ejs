@@ -18,6 +18,19 @@
         
 		            <h1>Board Game Database</h1>
 		            <p>Welcome to the Board Game Database. We are all games, all the time.</p>		            			        
+        		</div>
+        		<div>
+        			<h3>Top 10 Rated Games</h3>
+        			<table class="table">
+        				<tr><th>Game</th><th>Average Rating</th><th>Reviews</th></tr>
+        				<% topGames.forEach(function(game) { %>
+        					<tr>
+        						<td><a href="/game?GameID=<%= game.GameID %>"><%= game.Game %></a></td>
+        						<td><%= game.AverageRating %></td>
+        						<td><%= game.Reviews %></td>
+        					</tr>
+        				<% }); %>
+        			</table>
         		</div>                
             </div>
             <div class="col-sm-4">                
@@ -26,7 +39,7 @@
                     	<b>Welcome back <%= firstName %></b>
                     	<ul>
                     		<li><a href="/profile">User Profile</a></li>
-                    		
+                    		<li>Add a Game Review</li>                    		
                     	</ul>
                     	<a href="/logout" class="btn btn-default btn-sm">Logout</a>
                     <% } else { %>

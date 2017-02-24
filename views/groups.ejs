@@ -1,4 +1,4 @@
-<!-- views/pages/test.ejs -->
+<!-- views/pages/groups.ejs -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -13,18 +13,18 @@
 
     <main>
         <h2>Groups</h2>
-	        <table class = "table">
-	        	<tr>
-	        		<th>Name</th>	        		
-	        		<th>Description</th>	        		
-	        	</tr>			
-			    <% groups.forEach(function(group) { %>
-			        <tr>
-				        <td><a href="/group?GroupID=<%= group.GroupID %>"><%= group.Name %></a></td>				        
-				        <td><%= group.Description %></td>				        
-			        </tr>
-			    <% }); %>			
-			</table>
+        <table class = "table">
+        	<tr>
+        		<th>Name</th>	        		
+        		<th>Description</th>	        		
+        	</tr>			
+		    <% groups.forEach(function(group) { %>
+		        <tr>
+			        <td><a href="/group?GroupID=<%= group.GroupID %>"><%= group.Name %></a></td>				        
+			        <td><%= group.Description %></td>				        
+		        </tr>
+		    <% }); %>			
+		</table>
     </main>
 
     <footer>

@@ -11,3 +11,4 @@ select
     , Games.Image
 from Games
 left join Categories on Games.CategoryID = Categories.CategoryID
+where Games.GameID = {0}

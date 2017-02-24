@@ -1,74 +1,28 @@
 
-var express = require('express'),		
-	app = express(),
-	sqlite = require('sqlite3').verbose(),
-	db = new sqlite.Database('./game.db'),
-	fs = require('fs');
+// setup all the tools we need
+var express = require('express');		
+var	app = express();
+var port = process.env.PORT || 8080;
+var	sqlite = require('sqlite3').verbose();
+var	db = new sqlite.Database('./game.db');
+var	fs = require('fs');
+var passport = require('passport');
+var flash = require('connect-flash');
+var morgan = require('morgan');
+var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser');
+var session = require('express-session');
+require('./config/passport')(passport); // pass passport for configuration
+app.set('views', __dirname + '/views'); // set views directory
+app.set('view engine', 'ejs'); // set up ejs for templating
+app.use(morgan('dev')); // log every request to the console
+app.use(cookieParser()); // read cookies, needed for auth
+app.use(bodyParser()); // get information from html forms
+app.use(session({ secret: 'qwerty'})); // session secret
+app.use(passport.initialize());
+app.use(passport.session()); // persistent login sessions
+app.use(flash()); // use connect-flash for flash messages stored in session
+require('./routes.js')(app, passport, fs, db); // load routes
 
-app.set('views', __dirname + '/views');
-app.set('view engine', 'ejs');
-
-app.get('/', function(req, res) {	
-    var tagline = "Join a group and start playing games.";	
-    res.render('index', {
-        tagline: tagline
-    });
-
-});
-
-app.get('/about', function(req, res) {
-	res.render('about');
-});
-
-app.get('/games', function(req, res) {
-	var sql = fs.readFileSync('./queries/game_list.sql').toString();
-	db.all(sql, function(err, games) {
-		res.render('games', {
-			games: games
-		});
-	});
-});
-
-app.get('/game', function(req, res) {
-	var id = req.query.GameID;
-	var sql = fs.readFileSync('./queries/game_details.sql').toString() + "where GameID = " + id;
-	db.all(sql, function(err, game) {
-		res.render('game', {
-			game: game[0]			
-		});		
-	});
-});
-
-app.get('/groups', function(req, res) {
-	var sql = fs.readFileSync('./queries/group_list.sql').toString();
-	db.all(sql, function(err, groups) {
-		res.render('groups', {
-			groups: groups
-		});
-	});	
-});
-
-app.get('/group', function(req, res) {
-	var id = req.query.GroupID;
-	var sql_group = fs.readFileSync('./queries/group_details.sql').toString().replace('{0}', id);
-	var sql_events = fs.readFileSync('./queries/group_events.sql').toString().replace('{0}', id);	
-	db.all(sql_group, function(err, group) {
-		db.all(sql_events, function(er, events) {		
-			res.render('group', {
-				group: group[0],
-				events: events
-			});
-		});
-	});
-});
-
-app.get('/events', function(req, res) {
-	res.render('events');
-});
-
-
-app.get('/test', function(req, res) {
-	res.render('test');
-});
-
-app.listen(8080);
+app.listen(port); // launch app
+console.log('Running on port ' + port);

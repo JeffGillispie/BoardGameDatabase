@@ -1,4 +1,4 @@
-<!-- views/pages/test.ejs -->
+<!-- views/pages/events.ejs -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -12,7 +12,23 @@
     </header>
 
     <main>
-        <div>Nothing here yet...</div>
+        <div>	        
+	        <h2>Events</h2>
+	        <table class = "table">
+	        	<tr>
+	        		<th>Name</th>	        		
+	        		<th>Date</th>	        		
+	        		<th>Location</th>	        		
+	        	</tr>			
+			    <% events.forEach(function(event) { %>
+			        <tr>
+				        <td><a href="/event?EventID=<%= event.EventID %>"><%= event.Name %></a></td>				        
+				        <td><%= event.Date %></td>
+				        <td><%= event.Location %></td>				        
+			        </tr>
+			    <% }); %>			
+			</table>
+        </div>
     </main>
 
     <footer>

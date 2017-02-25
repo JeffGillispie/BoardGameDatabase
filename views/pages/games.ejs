@@ -18,7 +18,9 @@
 	        	<tr>
 	        		<th>Name</th>	        		
 	        		<th>Category</th>
-	        		<th>Players</th>
+	        		<th>Reviews</th>
+	        		<th>Average Rating</th>
+	        		<th>Groups</th>
 	        		<th>Age</th>
 	        		<th>MSRP</th>
 	        	</tr>			
@@ -26,7 +28,9 @@
 			        <tr>
 				        <td><a href="/game?GameID=<%= game.GameID %>"><%= game.Name %></a></td>				        
 				        <td><%= game.Category %></td>
-				        <td><%= game.MinimumPlayers %> - <%= game.MaximumPlayers %></td>
+				        <td><%= game.Reviews %></td>
+				        <td><%= game.AvgRating %></td>
+				        <td><%= game.Groups %></td>
 				        <td><%= game.Ages %>+</td>
 				        <td>$<%= game.MSRP %></td>
 			        </tr>

@@ -154,7 +154,69 @@ module.exports = function(app, passport, fs, db) {
 	app.get('/logout', function(req, res){
 		req.logout();
 		res.redirect('/');
-	});	
+	});
+	// ====================================================
+	// REVIEW PAGE
+	// ====================================================
+	app.get('/review', isLoggedIn, function(req, res) {
+		var sql = fs.readFileSync('./queries/game_list.sql').toString();
+		db.all(sql, function(err, games) {
+			res.render('pages/review', {
+				games: games
+			});		
+		});
+	});
+	// process the review form
+	app.post('/review', function(req, res) {		
+		var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+		var date = new Date();
+		var month = monthNames[date.getMonth()];
+		var dd = date.getDate();
+		var yyyy = date.getFullYear();
+		date = month + ' ' + dd + ', ' + yyyy;
+		var userid = req.user[0].UserID;
+		var comments = req.body.comments;
+		var rating = req.body.rating;
+		var gameid = req.body.game;
+		
+		var sql = fs.readFileSync('./queries/review_insert.sql').toString()
+			.replace('{0}', userid)
+			.replace('{1}', gameid)
+			.replace('{2}', date)
+			.replace('{3}', rating)
+			.replace('{4}', comments);
+		
+		db.run(sql, function(err, records) {
+			res.redirect('/game?GameID=' + gameid);
+		});
+	});
+	// ====================================================
+	// addGAME PAGE
+	// ====================================================
+	app.get('/addGame', isLoggedIn, function(req, res) {
+		var sql = fs.readFileSync('./queries/categories_list.sql').toString();
+		db.all(sql, function(err, categories) {
+			res.render('pages/addGame', {
+				categories: categories
+			});		
+		});
+	});
+	// process the add game form
+	app.post('/addGame', function(req, res) {
+		var sql = fs.readFileSync('./queries/game_insert.sql').toString()
+			.replace('{0}', req.body.gameName)
+			.replace('{1}', req.body.gameDescription)
+			.replace('{2}', req.body.gameMSRP)
+			.replace('{3}', req.body.gameMinPlayers)
+			.replace('{4}', req.body.gameMaxPlayers)
+			.replace('{5}', req.body.gameAge)
+			.replace('{6}', req.body.gameCategory)
+			.replace('{7}', req.body.gameLength);
+		console.log(sql);
+		db.run(sql, function(err, records) {
+			res.redirect('/games');
+		});
+	});
 };
 
 // route middle-ware to make sure user is logged in

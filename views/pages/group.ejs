@@ -13,29 +13,22 @@
 
     <main>        
         
-        <div class="row">
-            <div class="col-sm-8">            
-                <div class="jumbotron">
-                	<table class="table">
-                		<tr><th><%= group.Name %></th><th>Group Details</th></tr>
-                		<tr><td>Games</td><td><%= group.Games %></td></tr>
-                		<tr><td>Description</td><td><%= group.Description %></td></tr>
-                		<tr>
-                			<td>Events</td>
-                			<td>
-                				<% events.forEach(function(event) { %>
-                					<%= event.Name %> - <%= event.Date %> - <%= event.Location %>
-                				<% }); %>
-                			</td>
-            			</tr>
-                	</table>                                        
-                </div>                
-            </div>
-            <div class="col-sm-4">                
-                <div class="well">
-                    <h3>Look I'm A Sidebar!</h3>
-                </div>
-            </div>
+        <div class="row">                        
+            <div class="jumbotron">
+            	<table class="table">
+            		<tr><th><%= group.Name %></th><th>Group Details</th></tr>
+            		<tr><td>Games</td><td><%= group.Games %></td></tr>
+            		<tr><td>Description</td><td><%= group.Description %></td></tr>
+            		<tr>
+            			<td>Events</td>
+            			<td>
+            				<% events.forEach(function(event) { %>
+            					<%= event.Name %> - <%= event.Date %> - <%= event.Location %>
+            				<% }); %>
+            			</td>
+        			</tr>
+            	</table>                                        
+            </div>             
         </div>
     </main>
 

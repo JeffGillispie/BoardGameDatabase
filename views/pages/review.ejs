@@ -1,0 +1,52 @@
+<!-- views/pages/review.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ../partials/header %>
+    </header>
+
+    <main>
+    	<div class="row">       
+    	<div class="col-sm-6 col-sm-offset-3">
+    		<h1>Add a Game Review</h1> 
+	        <form action="/review" method="post">
+		    	<div class="form-group">
+		            <label>Game</label>
+		            <select name="game">		            	
+		            	<% games.forEach(function(game) { %>
+		            		<option value="<%= game.GameID %>"><%= game.Name %></option>
+		            	<% }); %>
+		            </select>
+		        </div>
+		        <div class="form-group">
+		            <label>Rating</label>
+		            <select name="rating">
+		            	<option value="1">1 - Terrible</option>
+		            	<option value="2">2 - Poor</option>
+		            	<option value="3">3 - OK</option>
+		            	<option value="4">4 - Good</option>
+		            	<option value="5">5 - Great</option>
+		            </select>
+		        </div>
+		        <div class="form-group">
+		            <label>Comments</label>
+		            <input type="text" class="form-control" name="comments">
+		        </div>
+		        <button type="submit" class="btn btn-warning btn-lg">Submit</button>
+		    </form>
+	    </div>
+	    </div>                
+    </main>
+
+    <footer>    	
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>

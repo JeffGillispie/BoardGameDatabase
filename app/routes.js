@@ -56,10 +56,14 @@ module.exports = function(app, passport, fs, db) {
 	app.get('/game', function(req, res) {
 		var id = req.query.GameID;
 		var sql = fs.readFileSync('./queries/game_details.sql').toString().replace('{0}', id);
+		var sql_reviews = fs.readFileSync('./queries/game_reviews.sql').toString().replace('{0}', id)
 		db.all(sql, function(err, game) {
-			res.render('pages/game', {
-				game: game[0]			
-			});		
+			db.all(sql_reviews, function(err, reviews) {								
+				res.render('pages/game', {
+					game: game[0],
+					reviews, reviews
+				});
+			});
 		});
 	});
 	// ====================================================

@@ -12,7 +12,6 @@
     </header>
 
     <main>        
-        
         <div class="row">                        
             <div class="jumbotron">
             	<table class="table">
@@ -26,6 +25,23 @@
             		<tr><td>Average Game Length</td><td><%= game.AvgGameLengthMin %></td></tr>
             	</table>                                    
             </div>                    
+        </div>
+        <div class="row">
+        	<h3>Reviews</h3>
+        	<table class="table">
+        	<tr>
+        		<th>User</th>
+        		<th>Rating</th>
+        		<th>Comments</th>        		
+        	</tr>
+        	<% reviews.forEach(function(review) { %>
+        		<tr>
+        			<td><%= review.User %></td>
+        			<td><%= review.Rating %></td>
+        			<td><%= review.Comments %></td>
+        		</tr>	
+        	<% }); %>        	
+        	</table>
         </div>
     </main>
 

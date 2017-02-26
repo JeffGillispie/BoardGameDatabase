@@ -19,7 +19,7 @@
 		    <% if (message.length > 0) { %>
 		        <div class="alert alert-danger"><%= message %></div>
 		    <% } %>
-	        <form action="/review" method="post">
+	        <form action="/groupAdd" method="post">
 	        	<div class="form-group">
 		            <label>Name</label>
 		            <input type="text" class="form-control" name="groupName">
@@ -31,8 +31,8 @@
 		        </div>
 	        	
 		    	<div class="form-group">
-		            <label>Games</label>
-		            <select name="groupGames" multiple>		            			            	
+		            <label>Games</label><br />
+		            <select name="groupGames" multiple size="25">		            			            	
 			            	<% try { games.forEach(function(game) { %>
 			            		<option value="<%= game.GameID %>"><%= game.Name %></option>
 			            	<% });} catch(e) {}  %>		            	

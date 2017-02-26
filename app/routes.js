@@ -173,8 +173,7 @@ module.exports = function(app, passport, fs, db) {
 	});
 	// process the review form
 	app.post('/review', function(req, res) {
-		failureFlash: true;
-		
+		failureFlash: true;		
 		var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 		var date = new Date();
 		var month = monthNames[date.getMonth()];
@@ -189,17 +188,15 @@ module.exports = function(app, passport, fs, db) {
 		var sql = fs.readFileSync('./queries/review_insert.sql').toString()
 			.replace('{0}', userid)
 			.replace('{1}', gameid)
-			.replace('{2}', date)
+			.replace('{2}', date.replace('\'', '\'\''))
 			.replace('{3}', rating)
 			.replace('{4}', comments.replace('\'', '\'\''));
-		console.log(sql);
-		db.run(sql, function(err, records) {
-			
+		db.run(sql, function(err, records) {			
 			if (err) {
 				console.log(err);
+				console.log(sql);
 				req.flash('failureMessage', 'There was a problem saving your review.');
-				res.render('pages/review', { message: req.flash('failureMessage') });
-				//return done(null, false, req.flash('failureMessage', 'There was a problem saving your review.'));
+				res.render('pages/review', { message: req.flash('failureMessage') });			
 			} else {
 				res.redirect('/game?GameID=' + gameid);
 			}
@@ -212,14 +209,16 @@ module.exports = function(app, passport, fs, db) {
 		var sql = fs.readFileSync('./queries/categories_list.sql').toString();
 		db.all(sql, function(err, categories) {
 			res.render('pages/gameAdd', {
-				categories: categories
+				categories: categories,
+				message: req.flash('failureMessage')
 			});		
 		});
 	});
 	// process the add game form
 	app.post('/gameAdd', function(req, res) {
+		failureFlash: true;
 		var sql = fs.readFileSync('./queries/game_insert.sql').toString()
-			.replace('{0}', req.body.gameName)
+			.replace('{0}', req.body.gameName.replace('\'', '\'\''))
 			.replace('{1}', req.body.gameDescription.replace('\'','\'\''))
 			.replace('{2}', req.body.gameMSRP)
 			.replace('{3}', req.body.gameMinPlayers)
@@ -227,9 +226,124 @@ module.exports = function(app, passport, fs, db) {
 			.replace('{5}', req.body.gameAge)
 			.replace('{6}', req.body.gameCategory)
 			.replace('{7}', req.body.gameLength);
-		console.log(sql);
 		db.run(sql, function(err, records) {
-			res.redirect('/games');
+			if (err) {
+				console.log(err);
+				console.log(sql);
+				req.flash('failureMessage', 'There was a problem saving your game.');
+				res.render('pages/gameAdd', { message: req.flash('failureMessage') });
+			} else {
+				res.redirect('/games');
+			}
+		});
+	});
+	// ====================================================
+	// GROUP ADD PAGE
+	// ====================================================
+	app.get('/groupAdd', isLoggedIn, function(req, res) {
+		var sql = fs.readFileSync('./queries/game_list.sql').toString();
+		db.all(sql, function(err, games) {
+			res.render('pages/groupAdd', {
+				games: games,
+				message: req.flash('failureMessage')
+			});		
+		});
+	});
+	// process the add group form
+	app.post('/groupAdd', function(req, res) {
+		failureFlash: true;
+		var userid = req.user[0].UserID;
+		var sql_groupAdd = 'insert into Groups (Name, Description, CreatedBy) values (\'{0}\', \'{1}\', {2})'
+			.replace('{0}', req.body.groupName.replace('\'', '\'\''))
+			.replace('{1}', req.body.groupDescription.replace('\'', '\'\''))
+			.replace('{2}', userid);
+		db.run(sql_groupAdd, function(err, records) {			
+			if (err) {
+				console.log(err);
+				console.log(sql);
+				req.flash('failureMessage', 'There was a problem saving your group.');
+				res.render('pages/groupAdd', { message: req.flash('failureMessage') });				
+			} 
+			
+			var sql_getGroupID = 'select * from Groups where Name = \'{0}\''
+				.replace('{0}', req.body.groupName.replace('\'', '\'\''));
+			
+			db.all(sql_getGroupID, function(err, groups) {
+				if (err) {
+					console.log(err);
+					console.log(sql_getGroupID);
+				} else {
+					var groupID = groups[0].GroupID
+					var sql_gg = 'insert into GroupGames (GroupID, GameID) values ({0}, {1})';			
+					req.body.groupGames.forEach(function(gameID) {
+						var sql_ggInsert = sql_gg
+							.replace('{0}', groupID)
+							.replace('{1}', gameID);
+						db.run(sql_ggInsert, function(err, records) {
+							if (err) {
+								console.log(err);
+								console.log(sql_gg);
+							}
+						});						
+					});					
+				}				
+			});
+			res.redirect('/groups');
+		});
+	});
+	// ====================================================
+	// EVENT ADD PAGE
+	// ====================================================
+	app.get('/eventAdd', isLoggedIn, function(req, res) {
+		var userid = req.user[0].UserID;
+		var sql_getOwners = fs.readFileSync('./queries/owners_list.sql').toString()
+			.replace('{0}', userid)
+			.replace('{0}', userid);
+		db.all(sql_getOwners, function(err, owners) {
+			if (err) {
+				console.log(err);
+				console.log(sql_getOwners);
+			}
+			
+			db.all('select * from Locations', function(err, locations) {
+				if (err) {
+					console.log(err);
+				}
+			
+				res.render('pages/eventAdd', {
+					owners: owners,
+					locations: locations,
+					message: req.flash('failureMessage')
+				});
+			});
+		});
+	});
+	// process the add event form
+	app.post('/eventAdd', function(req, res) {
+		failureFlash: true;
+		var eventLocationID	= getLocationID(req);		
+		var eventName = req.body.eventName.replace('\'', '\'\'');
+		var eventDescription = req.body.eventDescription.replace('\'', '\'\'');
+		var eventOwnerID = req.body.eventOwner.split(';')[0];
+		var eventOwnerType = req.body.eventOwner.split(';')[1];
+		var eventDate = req.body.eventDate.replace('\'', '\'\'');
+		var sql_insertEvent = 'insert into Events (Name, Description, LocationID, OwnerID, OwnerTypeID, Date) values (\'{0}\',\'{1}\',{2},{3},{4},\'{5}\')'
+			.replace('{0}', eventName)
+			.replace('{1}', eventDescription)
+			.replace('{2}', eventLocationID)
+			.replace('{3}', eventOwnerID)
+			.replace('{4}', eventOwnerType)
+			.replace('{5}', eventDate);
+		console.log(sql_insertEvent);
+		db.run(sql_insertEvent, function(err, results) {
+			if (err) {
+				console.log(err);
+				console.log(sql_insertEvent);
+				req.flash('failureMessage', 'There was a problem saving your event.');
+				res.render('pages/eventAdd', { message: req.flash('failureMessage') });
+			} else {
+				res.redirect('/events');
+			}
 		});
 	});
 };
@@ -241,4 +355,35 @@ function isLoggedIn(req, res, next) {
 		return next();
 	// if they aren't redirect them to the home page
 	res.redirect('/login');
+}
+// new location function
+function getLocationID(req) {
+	// populate the location id based on the location type selection
+	if (locationType == 'new') {
+		var locationType = req.body.eventLocationType;
+		var sql_insertLocation = 'insert into Locations (Name, Address, City, State, Zip) values (\'{0}\',\'{1}\',\'{2}\',\'{3}\',\'{4}\')'
+			.replace('{0}', req.body.locationName.replace('\'', '\'\''))
+			.replace('{1}', req.body.locationAddress.replace('\'', '\'\''))
+			.replace('{2}', req.body.locationCity.replace('\'', '\'\''))
+			.replace('{3}', req.body.locationState.replace('\'', '\'\''))
+			.replace('{4}', req.body.locationZip.replace('\'', '\'\''));
+		db.run(sql_insertLocation, function(err, results) {
+			if (err) {
+				console.log(err);
+				console.log(sql_insertLocation);
+			} else {					
+				var locationName = req.body.locationName.replace('\'', '\'\'');
+				var sql_getLocation = 'select * from Locations where Name = \'{0}\''.replace('{0}', locationName);
+				db.all(sql_getLocation, function(err, locations) {
+					if (err) {
+						console.log(err);
+						console.log(sql_getLocation);
+					}					
+					return locations[0].LocationID;					
+				});
+			}
+		});
+	} else {
+		return req.body.locationExisting
+	}
 }

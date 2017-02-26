@@ -166,12 +166,15 @@ module.exports = function(app, passport, fs, db) {
 		var sql = fs.readFileSync('./queries/game_list.sql').toString();
 		db.all(sql, function(err, games) {
 			res.render('pages/review', {
-				games: games
+				games: games,
+				message: req.flash('failureMessage')
 			});		
 		});
 	});
 	// process the review form
-	app.post('/review', function(req, res) {		
+	app.post('/review', function(req, res) {
+		failureFlash: true;
+		
 		var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 		var date = new Date();
 		var month = monthNames[date.getMonth()];
@@ -188,28 +191,36 @@ module.exports = function(app, passport, fs, db) {
 			.replace('{1}', gameid)
 			.replace('{2}', date)
 			.replace('{3}', rating)
-			.replace('{4}', comments);
-		
+			.replace('{4}', comments.replace('\'', '\'\''));
+		console.log(sql);
 		db.run(sql, function(err, records) {
-			res.redirect('/game?GameID=' + gameid);
+			
+			if (err) {
+				console.log(err);
+				req.flash('failureMessage', 'There was a problem saving your review.');
+				res.render('pages/review', { message: req.flash('failureMessage') });
+				//return done(null, false, req.flash('failureMessage', 'There was a problem saving your review.'));
+			} else {
+				res.redirect('/game?GameID=' + gameid);
+			}
 		});
 	});
 	// ====================================================
-	// addGAME PAGE
+	// GAME ADD PAGE
 	// ====================================================
-	app.get('/addGame', isLoggedIn, function(req, res) {
+	app.get('/gameAdd', isLoggedIn, function(req, res) {
 		var sql = fs.readFileSync('./queries/categories_list.sql').toString();
 		db.all(sql, function(err, categories) {
-			res.render('pages/addGame', {
+			res.render('pages/gameAdd', {
 				categories: categories
 			});		
 		});
 	});
 	// process the add game form
-	app.post('/addGame', function(req, res) {
+	app.post('/gameAdd', function(req, res) {
 		var sql = fs.readFileSync('./queries/game_insert.sql').toString()
 			.replace('{0}', req.body.gameName)
-			.replace('{1}', req.body.gameDescription)
+			.replace('{1}', req.body.gameDescription.replace('\'','\'\''))
 			.replace('{2}', req.body.gameMSRP)
 			.replace('{3}', req.body.gameMinPlayers)
 			.replace('{4}', req.body.gameMaxPlayers)

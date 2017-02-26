@@ -1,4 +1,4 @@
-<!-- views/pages/review.ejs -->
+<!-- views/pages/groupAdd.ejs -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -14,34 +14,32 @@
     <main>
     	<div class="row">       
     	<div class="col-sm-6 col-sm-offset-3">
-    		<h1>Add a Game Review</h1> 
+    		<h1>Add a Game Group</h1> 
     		<!-- show any messages that come back with authentication -->
 		    <% if (message.length > 0) { %>
 		        <div class="alert alert-danger"><%= message %></div>
 		    <% } %>
 	        <form action="/review" method="post">
+	        	<div class="form-group">
+		            <label>Name</label>
+		            <input type="text" class="form-control" name="groupName">
+		        </div>
+		        
+		        <div class="form-group">
+		            <label>Description</label>
+		            <input type="text" class="form-control" name="groupDescription">
+		        </div>
+	        	
 		    	<div class="form-group">
-		            <label>Game</label>
-		            <select name="game">		            			            	
+		            <label>Games</label>
+		            <select name="groupGames" multiple>		            			            	
 			            	<% try { games.forEach(function(game) { %>
 			            		<option value="<%= game.GameID %>"><%= game.Name %></option>
 			            	<% });} catch(e) {}  %>		            	
 		            </select>
+		            <p>Hold down Ctrl (WIN) / Command (MAC) burron to select multiple options.</p>
 		        </div>
-		        <div class="form-group">
-		            <label>Rating</label>
-		            <select name="rating">
-		            	<option value="1">1 - Terrible</option>
-		            	<option value="2">2 - Poor</option>
-		            	<option value="3">3 - OK</option>
-		            	<option value="4">4 - Good</option>
-		            	<option value="5">5 - Great</option>
-		            </select>
-		        </div>
-		        <div class="form-group">
-		            <label>Comments</label>
-		            <input type="text" class="form-control" name="comments">
-		        </div>
+		        
 		        <button type="submit" class="btn btn-warning btn-lg" <% if (typeof games == 'undefined') { %> <%= 'DISABLED' %> <% } %>>Submit</button>
 		    </form>
 	    </div>

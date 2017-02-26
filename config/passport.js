@@ -25,8 +25,8 @@ module.exports = function(passport, db, fs) {
 		db.all(sql, function(err, records) {			
 			if (err)
 				return done(err);
-			if (records.length) {
-				return dont(null, false, req.flash('signupMessage', 'That email is already registered.'));
+			if (records.length) {				
+				return done(null, false, req.flash('signupMessage', 'That email is already registered.'));
 			} else {
 				// new user object
 				var newUser = new Object();

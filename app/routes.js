@@ -321,30 +321,36 @@ module.exports = function(app, passport, fs, db) {
 	// process the add event form
 	app.post('/eventAdd', function(req, res) {
 		failureFlash: true;
-		var eventLocationID	= getLocationID(req);		
-		var eventName = req.body.eventName.replace('\'', '\'\'');
-		var eventDescription = req.body.eventDescription.replace('\'', '\'\'');
-		var eventOwnerID = req.body.eventOwner.split(';')[0];
-		var eventOwnerType = req.body.eventOwner.split(';')[1];
-		var eventDate = req.body.eventDate.replace('\'', '\'\'');
-		var sql_insertEvent = 'insert into Events (Name, Description, LocationID, OwnerID, OwnerTypeID, Date) values (\'{0}\',\'{1}\',{2},{3},{4},\'{5}\')'
-			.replace('{0}', eventName)
-			.replace('{1}', eventDescription)
-			.replace('{2}', eventLocationID)
-			.replace('{3}', eventOwnerID)
-			.replace('{4}', eventOwnerType)
-			.replace('{5}', eventDate);
-		console.log(sql_insertEvent);
-		db.run(sql_insertEvent, function(err, results) {
-			if (err) {
-				console.log(err);
-				console.log(sql_insertEvent);
-				req.flash('failureMessage', 'There was a problem saving your event.');
-				res.render('pages/eventAdd', { message: req.flash('failureMessage') });
-			} else {
-				res.redirect('/events');
-			}
-		});
+		//var eventLocationID = getLocationID(req, db);
+		getLocationID(req, db, callback);
+		
+		function callback(result) {
+			var eventLocationID = result;		
+			console.log(eventLocationID);
+			var eventName = req.body.eventName.replace('\'', '\'\'');
+			var eventDescription = req.body.eventDescription.replace('\'', '\'\'');
+			var eventOwnerID = req.body.eventOwner.split(';')[0];
+			var eventOwnerType = req.body.eventOwner.split(';')[1];
+			var eventDate = req.body.eventDate.replace('\'', '\'\'');
+			var sql_insertEvent = 'insert into Events (Name, Description, LocationID, OwnerID, OwnerTypeID, Date) values (\'{0}\',\'{1}\',{2},{3},{4},\'{5}\')'
+				.replace('{0}', eventName)
+				.replace('{1}', eventDescription)
+				.replace('{2}', eventLocationID)
+				.replace('{3}', eventOwnerID)
+				.replace('{4}', eventOwnerType)
+				.replace('{5}', eventDate);
+			console.log(sql_insertEvent);
+			db.run(sql_insertEvent, function(err, results) {
+				if (err) {
+					console.log(err);
+					console.log(sql_insertEvent);
+					req.flash('failureMessage', 'There was a problem saving your event.');
+					res.render('pages/eventAdd', { message: req.flash('failureMessage') });
+				} else {
+					res.redirect('/events');
+				}
+			});
+		}
 	});
 };
 
@@ -356,34 +362,36 @@ function isLoggedIn(req, res, next) {
 	// if they aren't redirect them to the home page
 	res.redirect('/login');
 }
-// new location function
-function getLocationID(req) {
+
+function getLocationID(req, db, callback) {
+	var locationType = req.body.eventLocationType;
 	// populate the location id based on the location type selection
-	if (locationType == 'new') {
-		var locationType = req.body.eventLocationType;
+	if (locationType == 'new') {			
 		var sql_insertLocation = 'insert into Locations (Name, Address, City, State, Zip) values (\'{0}\',\'{1}\',\'{2}\',\'{3}\',\'{4}\')'
 			.replace('{0}', req.body.locationName.replace('\'', '\'\''))
 			.replace('{1}', req.body.locationAddress.replace('\'', '\'\''))
 			.replace('{2}', req.body.locationCity.replace('\'', '\'\''))
 			.replace('{3}', req.body.locationState.replace('\'', '\'\''))
 			.replace('{4}', req.body.locationZip.replace('\'', '\'\''));
+		console.log(sql_insertLocation);
 		db.run(sql_insertLocation, function(err, results) {
 			if (err) {
-				console.log(err);
-				console.log(sql_insertLocation);
+				console.log(err);				
 			} else {					
 				var locationName = req.body.locationName.replace('\'', '\'\'');
 				var sql_getLocation = 'select * from Locations where Name = \'{0}\''.replace('{0}', locationName);
+				console.log(sql_getLocation);
 				db.all(sql_getLocation, function(err, locations) {
 					if (err) {
-						console.log(err);
-						console.log(sql_getLocation);
-					}					
-					return locations[0].LocationID;					
+						console.log(err);						
+					}
+					
+					console.log(locations);
+					callback(locations[0].LocationID);					
 				});
 			}
 		});
 	} else {
-		return req.body.locationExisting
+		callback(req.body.locationExisting);
 	}
 }

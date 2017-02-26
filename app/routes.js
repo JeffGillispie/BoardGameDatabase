@@ -274,8 +274,11 @@ module.exports = function(app, passport, fs, db) {
 					console.log(sql_getGroupID);
 				} else {
 					var groupID = groups[0].GroupID
-					var sql_gg = 'insert into GroupGames (GroupID, GameID) values ({0}, {1})';			
-					req.body.groupGames.forEach(function(gameID) {
+					var sql_gg = 'insert into GroupGames (GroupID, GameID) values ({0}, {1})';
+					console.log('The group games value is: ' + req.body.groupGames);
+										
+					if (typeof req.body.groupGames !== 'undefined' && req.body.groupGames.length == 1) {
+						var gameID = req.body.groupGames;
 						var sql_ggInsert = sql_gg
 							.replace('{0}', groupID)
 							.replace('{1}', gameID);
@@ -284,8 +287,20 @@ module.exports = function(app, passport, fs, db) {
 								console.log(err);
 								console.log(sql_gg);
 							}
-						});						
-					});					
+						});
+					} else if (typeof req.body.groupGames !== 'undefined' && req.body.groupGames.length > 1) {					
+						req.body.groupGames.forEach(function(gameID) {
+							var sql_ggInsert = sql_gg
+								.replace('{0}', groupID)
+								.replace('{1}', gameID);
+							db.run(sql_ggInsert, function(err, records) {
+								if (err) {
+									console.log(err);
+									console.log(sql_gg);
+								}
+							});						
+						});					
+					}
 				}				
 			});
 			res.redirect('/groups');
